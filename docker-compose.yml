@@ -72,7 +72,12 @@ services:
       SIDECAR_SHARED_SECRET: ${SIDECAR_SHARED_SECRET}
       GARMIN_EMAIL: ${GARMIN_EMAIL:-}
       GARMIN_PASSWORD: ${GARMIN_PASSWORD:-}
-    # Healthcheck activated in Phase 4 (when /health endpoint lands).
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request, sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8001/health').status == 200 else 1)\""]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 60s
     networks:
       - ttnet
 
