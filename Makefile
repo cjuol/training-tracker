@@ -20,7 +20,7 @@ build: ## Rebuild images
 test: test-php test-py ## Run all backend tests
 
 test-php: ## Run Pest
-	docker compose exec -T app vendor/bin/pest
+	docker compose exec -T app vendor/bin/pest --testdox
 
 test-py: ## Run pytest
 	docker compose exec -T sidecar pytest
