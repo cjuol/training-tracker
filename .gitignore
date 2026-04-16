@@ -1,5 +1,6 @@
-# Secrets and local env
-.env
+# Secrets and local env — only the root docker-compose .env is ignored.
+# app/.env follows Symfony convention (defaults committed; secrets live in .env.local).
+/.env
 .env.*.local
 
 # Dev tooling
