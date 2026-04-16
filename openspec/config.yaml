@@ -9,18 +9,27 @@ context: |
   Testing planned: Pest (PHP), pytest (sidecar), Playwright (PWA offline scenarios).
   Single-user app for owner. Offline-first UX in gym.
 
-strict_tdd: false
+strict_tdd: true
 
 testing:
-  status: not_installed
-  planned:
-    php_runner: pest
-    python_runner: pytest
-    e2e: playwright
-  note: |
-    Test infrastructure not yet installed (greenfield). strict_tdd will be re-evaluated
-    once Fase 0 scaffolding lands Pest + pytest + Playwright. Update this block and
-    flip strict_tdd: true at that point.
+  status: installed
+  detected: 2026-04-16
+  php:
+    runner: pest
+    command: docker compose exec -T app vendor/bin/pest --testdox
+    static_analysis: phpstan (level 6)
+  python:
+    runner: pytest
+    command: docker compose exec -T sidecar pytest
+    static_analysis: ruff + mypy (strict)
+  e2e:
+    runner: playwright
+    command: cd app && npx playwright test
+    in_ci: false
+    note: E2E corre local en Fase 0; se añade al CI en Fase 1 cuando haya UI real.
+  strict_tdd_scope: |
+    Flip aplicado tras landing de Fase 0. RED-GREEN-REFACTOR obligatorio desde Fase 1
+    (logueo). Fase 0 fue scaffold sin lógica, no requirió TDD.
 
 rules:
   proposal:

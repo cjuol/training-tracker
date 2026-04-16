@@ -48,10 +48,10 @@ Scope: scaffolding. Entidades reales, logueo y Garmin viven en fases siguientes.
 
 ## Phase 7: Verificación
 
-- [ ] 7.1 `make up` → 4 servicios healthy tras 60s (spec "Servicios healthy tras make up").
-- [ ] 7.2 `curl localhost:8080/` → 200 (spec "App responde 200 en home") + `curl localhost:8080/manifest.webmanifest` → 200 JSON (spec "Manifest disponible").
-- [ ] 7.3 `curl localhost:8001/health` → `{"status":"ok"}` (spec "Sidecar responde /health").
-- [ ] 7.4 `make test` verde y `docker compose exec app php bin/console doctrine:schema:validate --skip-sync` exit 0 (spec "schema:validate sin errores").
-- [ ] 7.5 `grep -rE '^use App\\(Training|Nutrition|Wearables|Analytics|Ingestion)\\' app/src/{Training,Nutrition,Wearables,Analytics,Ingestion}/ | grep -v Shared` → sin resultados (spec "No cross-module imports").
-- [ ] 7.6 Push a GitHub → CI workflow en verde (spec "CI verde al push inicial"). Flip `strict_tdd: true` en `openspec/config.yaml` y actualizar `testing.status: installed`.
-- [ ] 7.7 Ejecutar `sdd-verify` para validar implementación contra el spec. Si pasa: `sdd-archive`.
+- [x] 7.1 `docker compose ps` → 5 servicios healthy (app, nginx, postgres, redis, sidecar). Design decía 4 conceptuales pero el split php-fpm + nginx da 5.
+- [x] 7.2 `curl localhost:8000/` → 200 text/html. `curl localhost:8000/manifest.webmanifest` → 200 `application/manifest+json`. `curl localhost:8000/sw.js` → 200 `application/javascript`.
+- [x] 7.3 `curl localhost:8001/health` → 200 `{"status":"ok","version":"0.1.0"}`.
+- [x] 7.4 Pest → `OK (1 test, 1 assertion)`. pytest → `1 passed`. `doctrine:schema:validate --skip-sync` → `[OK] The mapping files are correct`.
+- [x] 7.5 `grep -rE '^use App\\(Training|Nutrition|Wearables|Analytics|Ingestion)\\' app/src/` → **No matches found**. Boundaries limpios.
+- [x] 7.6 `strict_tdd: true` en `openspec/config.yaml` + `testing.status: installed` + capabilities actualizadas en engram. Push a GitHub pendiente de decisión del usuario (local everything green).
+- [ ] 7.7 Ejecutar `sdd-verify` + `sdd-archive` para cerrar la fase.
