@@ -1,0 +1,14 @@
+{
+  "name": "training-tracker-pwa",
+  "private": true,
+  "version": "0.1.0",
+  "description": "PWA client for Training Tracker. Node is only needed for Playwright E2E and PWA tooling.",
+  "type": "module",
+  "scripts": {
+    "test:e2e": "playwright test",
+    "test:e2e:install": "playwright install --with-deps chromium"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.48.0"
+  }
+}
