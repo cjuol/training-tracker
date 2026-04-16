@@ -16,4 +16,8 @@ return [
         'path' => './assets/app.js',
         'entrypoint' => true,
     ],
+    'sw-register' => [
+        'path' => './assets/sw-register.js',
+        'entrypoint' => true,
+    ],
 ];

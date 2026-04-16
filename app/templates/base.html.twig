@@ -11,7 +11,7 @@
         {% block stylesheets %}{% endblock %}
 
         {% block javascripts %}
-            {% block importmap %}{{ importmap('app') }}{% endblock %}
+            {% block importmap %}{{ importmap(['app', 'sw-register']) }}{% endblock %}
         {% endblock %}
     </head>
     <body>
