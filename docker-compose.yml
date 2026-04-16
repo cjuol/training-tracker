@@ -1,0 +1,86 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: docker/app.Dockerfile
+    volumes:
+      - ./app:/app
+      - composer_cache:/root/.composer/cache
+    environment:
+      APP_ENV: ${APP_ENV:-dev}
+      APP_SECRET: ${APP_SECRET}
+      DATABASE_URL: ${DATABASE_URL}
+      REDIS_URL: ${REDIS_URL}
+      SIDECAR_SHARED_SECRET: ${SIDECAR_SHARED_SECRET}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    healthcheck:
+      test: ["CMD-SHELL", "php -v > /dev/null"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - ttnet
+
+  nginx:
+    image: nginx:1.27-alpine
+    ports:
+      - "8000:80"
+    volumes:
+      - ./app:/app:ro
+      - ./docker/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      app:
+        condition: service_healthy
+    networks:
+      - ttnet
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: app
+      POSTGRES_DB: training_tracker
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app -d training_tracker"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks:
+      - ttnet
+
+  redis:
+    image: redis:7-alpine
+    networks:
+      - ttnet
+
+  sidecar:
+    build:
+      context: ./sidecar-garmin
+      dockerfile: Dockerfile
+    ports:
+      - "8001:8001"
+    volumes:
+      - ./sidecar-garmin:/app
+      - pip_cache:/root/.cache/pip
+    environment:
+      SIDECAR_SHARED_SECRET: ${SIDECAR_SHARED_SECRET}
+      GARMIN_EMAIL: ${GARMIN_EMAIL:-}
+      GARMIN_PASSWORD: ${GARMIN_PASSWORD:-}
+    # Healthcheck activated in Phase 4 (when /health endpoint lands).
+    networks:
+      - ttnet
+
+volumes:
+  pgdata:
+  composer_cache:
+  pip_cache:
+
+networks:
+  ttnet:
+    driver: bridge
