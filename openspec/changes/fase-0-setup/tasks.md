@@ -36,9 +36,9 @@ Scope: scaffolding. Entidades reales, logueo y Garmin viven en fases siguientes.
 
 ## Phase 5: Harness tests + CI
 
-- [ ] 5.1 Crear `app/tests/Pest.php` + `app/tests/Unit/SmokeTest.php` con `it('arithmetic', fn () => expect(1+1)->toBe(2))`. Cubre spec "Pest smoke pasa".
-- [ ] 5.2 Crear `app/package.json` con devDeps `@playwright/test`, `workbox-window`. Crear `app/playwright.config.ts` + `app/tests/e2e/smoke.spec.ts` que hace GET a home y asserta status 200 + manifest link. Cubre spec "Playwright smoke pasa local".
-- [ ] 5.3 Crear `.github/workflows/ci.yml` con jobs `php-tests` y `python-tests` paralelos (snippet del design §Snippets clave). Cubre spec "CI verde al push inicial".
+- [x] 5.1 `app/tests/Pest.php` + `app/tests/Unit/SmokeTest.php` con `expect(1+1)->toBe(2)`. Pest 4 corre con `--testdox` (bug de output en non-TTY). Makefile actualizado. `phpstan.neon.dist` añadido (nivel 6).
+- [x] 5.2 `app/package.json` con `@playwright/test`, `app/playwright.config.ts` apuntando a BASE_URL env (default http://localhost:8000), `app/tests/e2e/smoke.spec.ts` con 2 tests (home renders + manifest MIME). workbox-window diferido a F1.
+- [x] 5.3 `.github/workflows/ci.yml` con jobs `php-tests` (composer cache + pest --testdox + phpstan) y `python-tests` (ruff + mypy + pytest) paralelos. E2E Playwright diferido a CI de F1.
 
 ## Phase 6: Docs + config repo
 
