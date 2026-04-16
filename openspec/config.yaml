@@ -1,0 +1,53 @@
+schema: spec-driven
+
+context: |
+  Project: Training Tracker V2 (prod rewrite, replaces training-tracker-app + irontrack-api).
+  Stack planned (greenfield): Symfony 7.x + PHP 8.3 monolith modular, PostgreSQL 16, Redis,
+  PWA (Twig + Turbo + Stimulus + IndexedDB/Dexie + spomky-labs/pwa-bundle),
+  Python FastAPI sidecar (python-garminconnect + APScheduler), Docker Compose.
+  Modules: Training, Nutrition, Wearables, Analytics, Ingestion, Shared.
+  Testing planned: Pest (PHP), pytest (sidecar), Playwright (PWA offline scenarios).
+  Single-user app for owner. Offline-first UX in gym.
+
+strict_tdd: false
+
+testing:
+  status: not_installed
+  planned:
+    php_runner: pest
+    python_runner: pytest
+    e2e: playwright
+  note: |
+    Test infrastructure not yet installed (greenfield). strict_tdd will be re-evaluated
+    once Fase 0 scaffolding lands Pest + pytest + Playwright. Update this block and
+    flip strict_tdd: true at that point.
+
+rules:
+  proposal:
+    - Include rollback plan for risky changes
+    - Identify affected modules/packages
+    - Scope must fit within a single SDD fase (no multi-fase proposals)
+  specs:
+    - Use Given/When/Then format for scenarios
+    - Use RFC 2119 keywords (MUST, SHALL, SHOULD, MAY)
+    - Reference module boundaries explicitly (Training, Nutrition, Wearables, etc.)
+  design:
+    - Include sequence diagrams for flows that cross module boundaries
+    - Document architecture decisions with rationale (why this, not that)
+    - Doctrine entities must respect module ownership (no cross-module FK without event)
+  tasks:
+    - Group tasks by phase (infrastructure, implementation, testing)
+    - Use hierarchical numbering (1.1, 1.2, etc.)
+    - Keep tasks small enough to complete in one session
+  apply:
+    - Follow Symfony 7.x idioms (controllers thin, services do work)
+    - PHP 8.3 features encouraged (readonly, enums, typed properties)
+    - Module communication via Symfony Messenger events, not direct calls
+    - Never create abstractions for single-use code (per global CLAUDE.md)
+  verify:
+    - Run tests if test infrastructure exists
+    - Compare implementation against every spec scenario
+    - Verify no cross-module Doctrine queries introduced
+  archive:
+    - Warn before merging destructive deltas (large removals)
+    - Append row to .tasks-log.csv when substantive session closes
