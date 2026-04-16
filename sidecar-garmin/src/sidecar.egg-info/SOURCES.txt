@@ -1,9 +1,0 @@
-pyproject.toml
-src/sidecar/__init__.py
-src/sidecar/main.py
-src/sidecar.egg-info/PKG-INFO
-src/sidecar.egg-info/SOURCES.txt
-src/sidecar.egg-info/dependency_links.txt
-src/sidecar.egg-info/requires.txt
-src/sidecar.egg-info/top_level.txt
-tests/test_health.py
