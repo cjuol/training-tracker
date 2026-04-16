@@ -1,0 +1,57 @@
+# Tasks: Fase 0 — Setup monorepo
+
+Scope: scaffolding. Entidades reales, logueo y Garmin viven en fases siguientes.
+
+## Phase 1: Infraestructura Docker + Makefile
+
+- [x] 1.1 Crear `docker/app.Dockerfile` (php:8.3-fpm base, extensiones pdo_pgsql, intl, zip, opcache, composer).
+- [x] 1.2 Crear `docker/nginx.conf` (upstream php-fpm:9000, root `/app/public`, `try_files $uri /index.php$is_args$args`).
+- [x] 1.3 Crear `sidecar-garmin/Dockerfile` (python:3.12-slim, `pip install -e '.[dev]'`, uvicorn).
+- [x] 1.4 Crear `docker-compose.yml` con servicios `app`, `nginx`, `postgres:16`, `redis:7`, `sidecar`; volúmenes `pgdata`, `composer_cache`, `pip_cache`; red `ttnet`; healthchecks app + postgres.
+- [x] 1.5 Crear `Makefile` con targets: `up`, `down`, `test`, `test-php`, `test-py`, `e2e`, `migrate`, `shell`, `logs`.
+- [x] 1.6 Crear `.env.example` con `APP_ENV`, `APP_SECRET`, `DATABASE_URL`, `REDIS_URL`, `SIDECAR_SHARED_SECRET`, `GARMIN_*`. Copiar a `.env` en primer `make up`.
+
+## Phase 2: Symfony scaffold
+
+- [x] 2.1 `composer create-project symfony/skeleton:7.4.* app` dentro del repo. Eliminar `.git` interno.
+- [x] 2.2 En `app/`: `composer require symfony/twig-bundle symfony/asset-mapper symfony/orm-pack symfony/messenger symfony/uid doctrine/doctrine-migrations-bundle` (framework-bundle y runtime ya vienen en skeleton).
+- [x] 2.3 `composer require --dev pestphp/pest symfony/phpunit-bridge phpstan/phpstan` (pest-plugin-symfony no existe).
+- [x] 2.4 Crear directorios `app/src/{Shared,Training,Nutrition,Wearables,Analytics,Ingestion}/Entity` con `.gitkeep`. Editar `app/composer.json` → `autoload.psr-4` con 6 namespaces. Eliminadas carpetas default `src/Controller`, `src/Entity`, `src/Repository`. `composer dump-autoload` ejecutado.
+- [x] 2.5 Editar `app/config/packages/doctrine.yaml` con 6 mappings (`Shared`, `Training`, `Nutrition`, `Wearables`, `Analytics`, `Ingestion`). `auto_mapping: false`.
+- [x] 2.6 `app/src/Shared/Controller/HomeController.php` con route `/` → renderiza `base.html.twig`. Namespace `App\Shared\Controller`.
+- [x] 2.7 `app/templates/base.html.twig` con `<link rel="manifest">`, viewport meta, theme-color, importmap.
+
+## Phase 3: PWA skeleton (Workbox + AssetMapper)
+
+- [ ] 3.1 Crear `app/public/manifest.webmanifest` con `name`, `short_name`, `start_url: /`, `display: standalone`, `theme_color`, iconos 192/512.
+- [ ] 3.2 Configurar `app/importmap.php` con entry `workbox-window` y `workbox-background-sync` apuntando a jsDelivr (pin versión).
+- [ ] 3.3 Crear `app/public/sw.js` estático: `importScripts('https://storage.googleapis.com/workbox-cdn/releases/7.0.0/workbox-sw.js')`, registrar `workbox.backgroundSync.Queue('setlog-queue')` sin consumidores aún.
+- [ ] 3.4 Crear Stimulus controller `app/assets/controllers/sw_controller.js` que registra `/sw.js` en `connect()`.
+
+## Phase 4: Sidecar FastAPI
+
+- [ ] 4.1 Crear `sidecar-garmin/pyproject.toml` (FastAPI, uvicorn, httpx, pydantic-settings; `[project.optional-dependencies].dev`: pytest, pytest-asyncio, httpx, ruff, mypy).
+- [ ] 4.2 Crear `sidecar-garmin/src/sidecar/main.py` con FastAPI app y `GET /health` → `{"status":"ok","version":"0.1.0"}`.
+- [ ] 4.3 Crear `sidecar-garmin/tests/test_health.py` con pytest + `httpx.AsyncClient` contra TestClient — cubre spec Requirement "Docker stack arranca" escenario `/health`.
+
+## Phase 5: Harness tests + CI
+
+- [ ] 5.1 Crear `app/tests/Pest.php` + `app/tests/Unit/SmokeTest.php` con `it('arithmetic', fn () => expect(1+1)->toBe(2))`. Cubre spec "Pest smoke pasa".
+- [ ] 5.2 Crear `app/package.json` con devDeps `@playwright/test`, `workbox-window`. Crear `app/playwright.config.ts` + `app/tests/e2e/smoke.spec.ts` que hace GET a home y asserta status 200 + manifest link. Cubre spec "Playwright smoke pasa local".
+- [ ] 5.3 Crear `.github/workflows/ci.yml` con jobs `php-tests` y `python-tests` paralelos (snippet del design §Snippets clave). Cubre spec "CI verde al push inicial".
+
+## Phase 6: Docs + config repo
+
+- [ ] 6.1 Crear `README.md` con: requisitos (PHP 8.3, Python 3.12+, Docker, Node 20+), `git clone && cp .env.example .env && make up && make test`, estructura del monorepo, comandos útiles.
+- [ ] 6.2 Crear `CLAUDE.md` en raíz con recordatorios específicos del repo: módulos boundaries, Convención de commits, dónde vive cada cosa, referencia a `openspec/`.
+- [ ] 6.3 Actualizar `.gitignore` añadiendo `vendor/`, `node_modules/`, `.venv/`, `app/var/`, `app/.env`, `sidecar-garmin/.venv`.
+
+## Phase 7: Verificación
+
+- [ ] 7.1 `make up` → 4 servicios healthy tras 60s (spec "Servicios healthy tras make up").
+- [ ] 7.2 `curl localhost:8080/` → 200 (spec "App responde 200 en home") + `curl localhost:8080/manifest.webmanifest` → 200 JSON (spec "Manifest disponible").
+- [ ] 7.3 `curl localhost:8001/health` → `{"status":"ok"}` (spec "Sidecar responde /health").
+- [ ] 7.4 `make test` verde y `docker compose exec app php bin/console doctrine:schema:validate --skip-sync` exit 0 (spec "schema:validate sin errores").
+- [ ] 7.5 `grep -rE '^use App\\(Training|Nutrition|Wearables|Analytics|Ingestion)\\' app/src/{Training,Nutrition,Wearables,Analytics,Ingestion}/ | grep -v Shared` → sin resultados (spec "No cross-module imports").
+- [ ] 7.6 Push a GitHub → CI workflow en verde (spec "CI verde al push inicial"). Flip `strict_tdd: true` en `openspec/config.yaml` y actualizar `testing.status: installed`.
+- [ ] 7.7 Ejecutar `sdd-verify` para validar implementación contra el spec. Si pasa: `sdd-archive`.
