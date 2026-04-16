@@ -42,9 +42,9 @@ Scope: scaffolding. Entidades reales, logueo y Garmin viven en fases siguientes.
 
 ## Phase 6: Docs + config repo
 
-- [ ] 6.1 Crear `README.md` con: requisitos (PHP 8.3, Python 3.12+, Docker, Node 20+), `git clone && cp .env.example .env && make up && make test`, estructura del monorepo, comandos útiles.
-- [ ] 6.2 Crear `CLAUDE.md` en raíz con recordatorios específicos del repo: módulos boundaries, Convención de commits, dónde vive cada cosa, referencia a `openspec/`.
-- [ ] 6.3 Actualizar `.gitignore` añadiendo `vendor/`, `node_modules/`, `.venv/`, `app/var/`, `app/.env`, `sidecar-garmin/.venv`.
+- [x] 6.1 `README.md` con brief + requisitos + arranque (make up/test) + estructura + boundaries + comandos + referencia a SDD + CI.
+- [x] 6.2 `CLAUDE.md` raíz con stack, boundaries (reglas duras), convenciones código+commits, SDD flow, ficheros sensibles, gotchas (Pest testdox, importmap url).
+- [x] 6.3 `.gitignore` raíz: `/.env` anclado a root (app/.env sí se commitea, convención Symfony). `node_modules`, `.venv`, `.egg-info`, pytest/mypy/ruff caches, playwright reports ya cubiertos. app/vendor y app/var los cubre app/.gitignore del skeleton.
 
 ## Phase 7: Verificación
 
