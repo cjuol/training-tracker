@@ -23,16 +23,16 @@ Scope: scaffolding. Entidades reales, logueo y Garmin viven en fases siguientes.
 
 ## Phase 3: PWA skeleton (Workbox + AssetMapper)
 
-- [ ] 3.1 Crear `app/public/manifest.webmanifest` con `name`, `short_name`, `start_url: /`, `display: standalone`, `theme_color`, iconos 192/512.
-- [ ] 3.2 Configurar `app/importmap.php` con entry `workbox-window` y `workbox-background-sync` apuntando a jsDelivr (pin versión).
-- [ ] 3.3 Crear `app/public/sw.js` estático: `importScripts('https://storage.googleapis.com/workbox-cdn/releases/7.0.0/workbox-sw.js')`, registrar `workbox.backgroundSync.Queue('setlog-queue')` sin consumidores aún.
-- [ ] 3.4 Crear Stimulus controller `app/assets/controllers/sw_controller.js` que registra `/sw.js` en `connect()`.
+- [x] 3.1 `app/public/manifest.webmanifest` con `name`, `short_name`, `start_url: /`, `display: standalone`, `theme_color: #0a0a0a`, iconos 192/512 maskable. Nginx sirve con `application/manifest+json` (MIME añadido a `docker/nginx.conf`).
+- [x] 3.2 `app/importmap.php` con entrypoints `app` y `sw-register`. workbox-window diferido a Fase 1 (AssetMapper no soporta `url` en importmap y jsDelivr data API devuelve 500 para workbox-window).
+- [x] 3.3 `app/public/sw.js` estático: `importScripts` a Workbox 7.1 desde Google CDN, `backgroundSync.Queue('setlog-queue')` con retención 24h, `skipWaiting()` y `clients.claim()` en install/activate.
+- [x] 3.4 `app/assets/sw-register.js` registra `/sw.js` con `navigator.serviceWorker.register` (plain JS). Stimulus diferido a Fase 1 cuando la UX lo requiera.
 
 ## Phase 4: Sidecar FastAPI
 
-- [ ] 4.1 Crear `sidecar-garmin/pyproject.toml` (FastAPI, uvicorn, httpx, pydantic-settings; `[project.optional-dependencies].dev`: pytest, pytest-asyncio, httpx, ruff, mypy).
-- [ ] 4.2 Crear `sidecar-garmin/src/sidecar/main.py` con FastAPI app y `GET /health` → `{"status":"ok","version":"0.1.0"}`.
-- [ ] 4.3 Crear `sidecar-garmin/tests/test_health.py` con pytest + `httpx.AsyncClient` contra TestClient — cubre spec Requirement "Docker stack arranca" escenario `/health`.
+- [x] 4.1 `sidecar-garmin/pyproject.toml` con setuptools backend, deps fastapi/uvicorn[standard]/httpx/pydantic-settings, dev pytest+pytest-asyncio+ruff+mypy. pythonpath `src`, mypy strict.
+- [x] 4.2 `sidecar-garmin/src/sidecar/main.py` con FastAPI + `GET /health` → `{"status":"ok","version":"0.1.0"}`.
+- [x] 4.3 `sidecar-garmin/tests/test_health.py` con `fastapi.testclient.TestClient` (más simple que AsyncClient para GET sync). Healthcheck del compose reactivado.
 
 ## Phase 5: Harness tests + CI
 
