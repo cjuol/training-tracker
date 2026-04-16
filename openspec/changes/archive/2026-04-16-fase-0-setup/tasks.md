@@ -54,4 +54,4 @@ Scope: scaffolding. Entidades reales, logueo y Garmin viven en fases siguientes.
 - [x] 7.4 Pest → `OK (1 test, 1 assertion)`. pytest → `1 passed`. `doctrine:schema:validate --skip-sync` → `[OK] The mapping files are correct`.
 - [x] 7.5 `grep -rE '^use App\\(Training|Nutrition|Wearables|Analytics|Ingestion)\\' app/src/` → **No matches found**. Boundaries limpios.
 - [x] 7.6 `strict_tdd: true` en `openspec/config.yaml` + `testing.status: installed` + capabilities actualizadas en engram. Push a GitHub pendiente de decisión del usuario (local everything green).
-- [ ] 7.7 Ejecutar `sdd-verify` + `sdd-archive` para cerrar la fase.
+- [x] 7.7 `sdd-verify` ejecutado → PASS WITH WARNINGS. E2E Playwright ejecutado tras verify → 2 passed. Archivado en `openspec/changes/archive/2026-04-16-fase-0-setup/`.
